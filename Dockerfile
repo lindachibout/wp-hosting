@@ -11,17 +11,16 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
+# Désactive le téléchargement/l'installation en parallèle — race condition
+# connue de composer (DirectoryNotFoundException / "aborted by another
+# package operation") sur les machines de build à beaucoup de vCPU comme
+# Cloud Build. Confirmé en inspectant le binaire composer : ces deux
+# variables existent réellement et contrôlent son parallélisme interne.
+ENV COMPOSER_MAX_PARALLEL_HTTP=1
+ENV COMPOSER_MAX_PARALLEL_PROCESSES=1
 
 COPY composer.json composer.lock ./
-# Retry : composer a un bug connu de race condition sur l'installation
-# parallèle des paquets (DirectoryNotFoundException), plus fréquent sur des
-# machines de build à beaucoup de vCPU comme Cloud Build.
-RUN for i in 1 2 3; do \
-      composer install --no-dev --optimize-autoloader --no-interaction && break; \
-      echo "composer install a échoué (tentative $i/3), nouvel essai..." >&2; \
-      rm -rf vendor; \
-      sleep 5; \
-    done
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 COPY . .
 
