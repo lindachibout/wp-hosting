@@ -1,0 +1,30 @@
+{
+    "name": "linda/wp-hosting",
+    "type": "project",
+    "description": "WordPress headless multi-tenant (un backend, une base par site, routée par nom de domaine), déployé sur Cloud Run",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.3",
+        "composer/installers": "^2.3",
+        "johnpbloch/wordpress": "^6.6",
+        "wpackagist-plugin/wp-stateless": "^3.4",
+        "wpackagist-plugin/wordpress-seo": "^23.0",
+        "google/cloud-secret-manager": "^1.12"
+    },
+    "extra": {
+        "wordpress-install-dir": ".",
+        "installer-paths": {
+            "wp-content/plugins/{$name}/": ["type:wordpress-plugin"],
+            "wp-content/themes/{$name}/": ["type:wordpress-theme"]
+        }
+    },
+    "repositories": [
+        { "type": "composer", "url": "https://wpackagist.org" }
+    ],
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "johnpbloch/wordpress-core-installer": true
+        }
+    }
+}

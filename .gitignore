@@ -1,0 +1,25 @@
+# WordPress core + plugins/thèmes composer-managed (reconstruits à l'image
+# Docker) — wp-config.php et wp-content/{db.php,mu-plugins/} sont notre code.
+/wp-admin/
+/wp-includes/
+/wp-content/plugins/
+/wp-content/themes/
+/wp-content/languages/
+/wp-content/index.php
+/index.php
+/wp-activate.php
+/wp-blog-header.php
+/wp-comments-post.php
+/wp-cron.php
+/wp-links-opml.php
+/wp-load.php
+/wp-login.php
+/wp-mail.php
+/wp-settings.php
+/wp-signup.php
+/wp-trackback.php
+/xmlrpc.php
+
+/vendor/
+
+.env

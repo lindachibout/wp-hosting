@@ -1,0 +1,50 @@
+steps:
+
+  # 1. Build de l'image (composer install a lieu DANS le Dockerfile — Cloud
+  #    Run n'a pas d'équivalent à l'auto-composer-install de GAE Standard).
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - build
+      - -t
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/wp-hosting/wp:$SHORT_SHA'
+      - .
+    id: build
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - push
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/wp-hosting/wp:$SHORT_SHA'
+    id: push
+    waitFor: [build]
+
+  # 2. Déploiement Cloud Run — les secrets sont montés directement en env
+  #    vars depuis Secret Manager (pas besoin d'injection sed comme sur GAE).
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - wp
+      - --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/wp-hosting/wp:$SHORT_SHA
+      - --region=${_REGION}
+      - --platform=managed
+      - --service-account=wp-runner@$PROJECT_ID.iam.gserviceaccount.com
+      - --add-cloudsql-instances=${_CLOUDSQL_CONNECTION_NAME}
+      - --set-env-vars=CLOUDSQL_CONNECTION_NAME=${_CLOUDSQL_CONNECTION_NAME},GOOGLE_CLOUD_PROJECT=$PROJECT_ID,WP_DEBUG=false
+      - --set-secrets=WP_AUTH_KEY=wp-auth-key:latest,WP_SECURE_AUTH_KEY=wp-secure-auth-key:latest,WP_LOGGED_IN_KEY=wp-logged-in-key:latest,WP_NONCE_KEY=wp-nonce-key:latest,WP_AUTH_SALT=wp-auth-salt:latest,WP_SECURE_AUTH_SALT=wp-secure-auth-salt:latest,WP_LOGGED_IN_SALT=wp-logged-in-salt:latest,WP_NONCE_SALT=wp-nonce-salt:latest,WP_PREVIEW_SECRET=wp-preview-secret:latest
+      - --allow-unauthenticated
+      - --quiet
+    id: deploy
+    waitFor: [push]
+
+images:
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/wp-hosting/wp:$SHORT_SHA'
+
+substitutions:
+  _REGION: europe-west1
+  _CLOUDSQL_CONNECTION_NAME: lmn-tech:europe-west1:wp-mysql
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: 900s
