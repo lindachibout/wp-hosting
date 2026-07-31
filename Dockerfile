@@ -10,8 +10,18 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Retry : composer a un bug connu de race condition sur l'installation
+# parallèle des paquets (DirectoryNotFoundException), plus fréquent sur des
+# machines de build à beaucoup de vCPU comme Cloud Build.
+RUN for i in 1 2 3; do \
+      composer install --no-dev --optimize-autoloader --no-interaction && break; \
+      echo "composer install a échoué (tentative $i/3), nouvel essai..." >&2; \
+      rm -rf vendor; \
+      sleep 5; \
+    done
 
 COPY . .
 
