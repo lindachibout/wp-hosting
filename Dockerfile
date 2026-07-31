@@ -38,7 +38,7 @@ COPY . .
 # un niveau au-dessus de son propre répertoire (comportement standard).
 RUN a2enmod rewrite \
     && sed -i 's#/var/www/html#/var/www/html/wordpress#g' /etc/apache2/sites-available/000-default.conf \
-    && echo '<Directory /var/www/html/wordpress>AllowOverride All</Directory>' \
+    && printf '<Directory /var/www/html/wordpress>\n    AllowOverride All\n</Directory>\n' \
        >> /etc/apache2/apache2.conf
 
 COPY docker/start.sh /start.sh
