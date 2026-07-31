@@ -12,16 +12,16 @@ wp.domoloc.fr ──┐
 wp.oncompare.fr ─┘
 ```
 
-- `wp-content/mu-plugins/sites-config.php` — table de routage domaine → base/user/secret/front. **C'est ici qu'on ajoute un nouveau tenant.**
-- `wp-content/db.php` — drop-in de connexion : résout la base à partir du domaine de la requête, va chercher le mot de passe dans Secret Manager.
-- `wp-content/mu-plugins/headless-preview.php` — bouton "Aperçu" wp-admin → front Next.js du tenant, token HMAC signé.
+- `wordpress/wp-content/mu-plugins/sites-config.php` — table de routage domaine → base/user/secret/front. **C'est ici qu'on ajoute un nouveau tenant.**
+- `wordpress/wp-content/db.php` — drop-in de connexion : résout la base à partir du domaine de la requête, va chercher le mot de passe dans Secret Manager.
+- `wordpress/wp-content/mu-plugins/headless-preview.php` — bouton "Aperçu" wp-admin → front Next.js du tenant, token HMAC signé.
 - Filesystem Cloud Run en lecture seule à l'exécution : core + plugins/thèmes gérés via `composer.json`, installés au build de l'image Docker (pas d'installation depuis wp-admin).
 
 ## Ajouter un nouveau site
 
-1. Créer la base + l'utilisateur MySQL dédiés sur l'instance Cloud SQL partagée (cf. Terraform `my-terraform/projects/wp-hosting`).
+1. Créer la base + l'utilisateur MySQL dédiés sur l'instance Cloud SQL partagée (cf. Terraform `my-terraform/projects/lmn-tech/wp-*.tf`).
 2. Créer le secret du mot de passe dans Secret Manager (`db-password-wp-<site>`).
-3. Ajouter une entrée dans `wp-content/mu-plugins/sites-config.php` (domaine, `db_name`, `db_user`, `db_secret_id`, `front_url`).
+3. Ajouter une entrée dans `wordpress/wp-content/mu-plugins/sites-config.php` (domaine, `db_name`, `db_user`, `db_secret_id`, `front_url`).
 4. Mapper le domaine `wp.<site>.<tld>` vers le service Cloud Run (`gcloud run domain-mappings create`).
 5. Terminer l'installation WordPress du site via l'assistant wp-admin (seule étape non composer-able), activer/configurer wp-stateless (médias) + Yoast SEO.
 

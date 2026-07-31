@@ -11,7 +11,7 @@
  */
 
 require_once __DIR__ . '/mu-plugins/sites-config.php';
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 use Google\Cloud\SecretManager\V1\Client\SecretManagerServiceClient;
 use Google\Cloud\SecretManager\V1\AccessSecretVersionRequest;

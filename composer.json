@@ -12,10 +12,10 @@
         "google/cloud-secret-manager": "^1.12"
     },
     "extra": {
-        "wordpress-install-dir": ".",
+        "wordpress-install-dir": "wordpress",
         "installer-paths": {
-            "wp-content/plugins/{$name}/": ["type:wordpress-plugin"],
-            "wp-content/themes/{$name}/": ["type:wordpress-theme"]
+            "wordpress/wp-content/plugins/{$name}/": ["type:wordpress-plugin"],
+            "wordpress/wp-content/themes/{$name}/": ["type:wordpress-theme"]
         }
     },
     "repositories": [
